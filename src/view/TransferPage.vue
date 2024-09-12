@@ -40,14 +40,12 @@ export default defineComponent({
     const handleBackPage = async () => {
       if (page.value > 0) {
         page.value -= 1;
-        console.log(page.value)
         await handleFetch();
       }
     }
     const handleForwardPage = async () => {
       if (page.value < tatalPages.value) {
         page.value += 1;
-        console.log(page.value)
         handleFetch();
       }
     }
