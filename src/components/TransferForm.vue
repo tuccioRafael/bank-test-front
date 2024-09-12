@@ -1,9 +1,6 @@
 <script lang="ts">
-import { defineComponent, ref, PropType, reactive } from 'vue';
-import { TransfersRequest, TransfersUpdateRequest } from '../interfaces';
+import { defineComponent, PropType, reactive } from 'vue';
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
 import { API } from '../network-service/api';
 
 export default defineComponent({
@@ -13,9 +10,10 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-    transferUpdateRequest: {
-      type: Object as PropType<TransfersUpdateRequest>,
-    }
+    submit: {
+      type: Function as PropType<() => void>,
+      required: true,
+    },
   },
 
   setup(props, { emit }) {
@@ -24,7 +22,7 @@ export default defineComponent({
       originAccount: '',
       destinationAccount: '',
       transferValue: '',
-      transferDate: ''
+      transferDate: '',
     });
 
     const resetForm = () => {
@@ -52,7 +50,7 @@ export default defineComponent({
           transferValue: form.transferValue.replace(',', '.'),
           transferDate: form.transferDate,
         });
-     
+        props.submit();
       } catch (error) {
         console.error(error);
       } finally {
@@ -89,7 +87,7 @@ export default defineComponent({
 <template>
   <div v-if="open" class="modal-overlay" @click.self="closeModal">
     <div class="modal-content">
-      <h3>Modal Title</h3>
+      <h3>Realize sua transferencia</h3>
       <form @submit.prevent="submitForm">
         <!-- Conta de Origem -->
         <div class="form-group">
@@ -120,8 +118,8 @@ export default defineComponent({
         </div>
 
         <!-- Botão de envio -->
-        <button type="submit">Enviar Transferência</button>
         <button class="btn" @click="closeModal">Close</button>
+        <button type="submit">Enviar Transferência</button>
         <button class="modal-close" @click="closeModal">&times;</button>
       </form>
     </div>
@@ -143,8 +141,12 @@ export default defineComponent({
 
 }
 
+h3 {
+  padding: 10px 0;
+}
+
 .btn {
-  margin-left: 20px;
+  margin-right: 20px;
   color: red;
 }
 
@@ -159,12 +161,9 @@ export default defineComponent({
   padding: 30px;
 }
 
-
-
-
 .form-group {
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
@@ -177,7 +176,7 @@ export default defineComponent({
   width: 100%;
   padding: 8px;
   box-sizing: border-box;
-  height: 45px;
+  height: 35px;
   font-size: 16px;
   border-radius: 10px;
   border: 1px solid #7159c1;

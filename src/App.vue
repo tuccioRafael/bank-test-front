@@ -6,7 +6,6 @@ import TransferPage from './view/TransferPage.vue';
 <template>
   <header class="header">
     <p>Sistema de transferencia</p>
-    <button>Criar transferencia</button>
   </header>
   <div class="container">
     <TransferPage />

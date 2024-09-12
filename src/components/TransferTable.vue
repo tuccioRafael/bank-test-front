@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { TransfersResponse } from '../interfaces';
 
 
@@ -13,10 +13,16 @@ export default defineComponent({
     },
   },
   setup() {
+    const isOpen = ref(false);
 
+    const openModal = () => {
+      isOpen.value = true;
 
+      return isOpen.value;
+    }
     return {
-
+      openModal,
+      isOpen,
     }
   }
 
@@ -34,7 +40,6 @@ export default defineComponent({
         <th>Taxa</th>
         <th>Data da transferecia</th>
         <th>Data de criação</th>
-        <th>ações</th>
       </tr>
     </thead>
     <tbody>
@@ -46,13 +51,11 @@ export default defineComponent({
         <td>{{ transfer.rate }}</td>
         <td>{{ transfer.transferDate }}</td>
         <td>{{ transfer.createdAt }}</td>
-        <td class="actions">
-          <p>editar</p> | <p>excluir</p> | <p>detalhes</p>
-        </td>
       </tr>
-
     </tbody>
   </table>
+  <div>
+  </div>
 </template>
 
 <style scoped>

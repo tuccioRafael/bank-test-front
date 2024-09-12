@@ -15,17 +15,19 @@ export default defineComponent({
   setup() {
     const isOpen = ref(false);
     const transfers = ref<TransfersResponse[]>([])
-
+    const page = ref(0);
+    const tatalPages = ref(0);
 
     const handleFetch = async () => {
-      const { data } = await API.get('/transfers');
-      console.log(data);
+      const { data } = await API.get(`/transfers?size=10&page=${page.value}`);
+      transfers.value = data.content;
+      tatalPages.value = data.totalPages -1;
     }
 
     onMounted(async () => {
-      const { data } = await API.get('/transfers');
+      const { data } = await API.get(`/transfers?size=10&page=${page.value}`);
       transfers.value = data.content;
-      console.log(data.content);
+      tatalPages.value = data.totalPages -1;
 
     });
 
@@ -35,26 +37,45 @@ export default defineComponent({
       return isOpen.value;
     }
 
+    const handleBackPage = async () => {
+      if (page.value > 0) {
+        page.value -= 1;
+        console.log(page.value)
+        await handleFetch();
+      }
+    }
+    const handleForwardPage = async () => {
+      if (page.value < tatalPages.value) {
+        page.value += 1;
+        console.log(page.value)
+        handleFetch();
+      }
+    }
+
     return {
       transfers,
       isOpen,
       handleFetch,
       openModal,
+      page,
+      handleBackPage,
+      handleForwardPage,
     }
   }
 })
 </script>
 
 <template>
-  <!-- <p>{{ transfers[0].id }}</p> -->
-
   <button @click="openModal">
-    Open Modal
+    Criar transferência
   </button>
-  <TransferForm :open="isOpen" @close="isOpen = !isOpen">
-    
-  </TransferForm>
-  <!-- <TransferTable :transfers="transfers" /> -->
+  <TransferForm :open="isOpen" @close="isOpen = !isOpen" :submit="handleFetch" />
+  <TransferTable :transfers="transfers"/>
+  <div class="pagination">
+    <p class="backward-button" @click="handleBackPage"><<</p>
+    <p>{{ page }}</p>
+    <p class="forward-button" @click="handleForwardPage">>></p>
+  </div>
 
 </template>
 
@@ -84,5 +105,21 @@ tr:nth-child(even) {
 
 tr:hover {
   background-color: #f5f5f5;
+}
+
+.pagination {
+  width: 100%;
+  padding: 30px 0;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.backward-button {
+  cursor: pointer;
+}
+
+.forward-button {
+  cursor: pointer;
 }
 </style>
