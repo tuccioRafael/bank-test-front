@@ -16,18 +16,27 @@ export default defineComponent({
     const isOpen = ref(false);
     const transfers = ref<TransfersResponse[]>([])
     const page = ref(0);
-    const tatalPages = ref(0);
+    const totalPages = ref(0);
+    const errorMessage = ref('');
 
     const handleFetch = async () => {
-      const { data } = await API.get(`/transfers?size=10&page=${page.value}`);
+      try {
+        const { data } = await API.get(`/transfers?size=10&page=${page.value}`);
       transfers.value = data.content;
-      tatalPages.value = data.totalPages -1;
+      totalPages.value = data.totalPages -1;
+      } catch (error) {
+        errorMessage.value = 'Erro ao buscar transferências';
+      }
     }
 
     onMounted(async () => {
-      const { data } = await API.get(`/transfers?size=10&page=${page.value}`);
-      transfers.value = data.content;
-      tatalPages.value = data.totalPages -1;
+      try {
+        const { data } = await API.get(`/transfers?size=10&page=${page.value}`);
+        transfers.value = data.content;
+        totalPages.value = data.totalPages -1;
+      } catch (error) {
+        errorMessage.value = 'Erro ao buscar transferências';
+      }
 
     });
 
@@ -44,7 +53,7 @@ export default defineComponent({
       }
     }
     const handleForwardPage = async () => {
-      if (page.value < tatalPages.value) {
+      if (page.value < totalPages.value) {
         page.value += 1;
         handleFetch();
       }
@@ -56,8 +65,10 @@ export default defineComponent({
       handleFetch,
       openModal,
       page,
+      totalPages,
       handleBackPage,
       handleForwardPage,
+      errorMessage
     }
   }
 })
@@ -67,11 +78,15 @@ export default defineComponent({
   <button @click="openModal">
     Criar transferência
   </button>
+  <div v-if="errorMessage" class="error">
+    <p>{{ errorMessage }}</p>
+  </div>
   <TransferForm :open="isOpen" @close="isOpen = !isOpen" :submit="handleFetch" />
+  <p>total page {{ totalPages + 1 }}</p>
   <TransferTable :transfers="transfers"/>
   <div class="pagination">
     <p class="backward-button" @click="handleBackPage"><<</p>
-    <p>{{ page }}</p>
+    <p>{{ page + 1 }}</p>
     <p class="forward-button" @click="handleForwardPage">>></p>
   </div>
 
@@ -119,5 +134,21 @@ tr:hover {
 
 .forward-button {
   cursor: pointer;
+}
+
+.error {
+  width: 100%;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.error p {
+  color: red;
+  font-size: 20px;
+  padding: 20px;
+  border: 1px solid red;
 }
 </style>
